@@ -9,11 +9,11 @@
     <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
         <!-- Search and Filter -->
         <form class="flex gap-2" method="get">
-            <select name="class"
+            <select name="class_id"
                 class="rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
                 <option value="">All Classes</option>
                 {% for cls in classes %}
-                <option value="{{ cls.id }}" {% if request.GET.class==cls.id|stringformat:"s" %}selected{% endif %}>
+                <option value="{{ cls.id }}" {% if request.GET.class_id==cls.id|stringformat:"s" %}selected{% endif %}>
                     {{ cls.name }} - {{ cls.section }}
                 </option>
                 {% endfor %}
