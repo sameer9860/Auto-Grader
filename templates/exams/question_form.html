@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Question{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex items-center mb-6">
+        <a href="{% url 'exams:exam_detail' exam.id %}" class="text-gray-500 hover:text-gray-700 mr-4">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="text-2xl font-bold text-gray-800">Add Question to {{ exam.name }}</h1>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <p class="font-bold">Please correct the errors below:</p>
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="col-span-1 md:col-span-2">
+                    <label for="{{ form.subject.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                    <select name="{{ form.subject.name }}" id="{{ form.subject.id_for_label }}" required
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        {% for choice in form.subject.field.queryset %}
+                        {% if choice in exam.subjects.all %}
+                        <option value="{{ choice.pk }}" {% if form.subject.value==choice.pk %}selected{% endif %}>
+                            {{ choice.name }}
+                        </option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.subject.errors %}<p class="text-red-500 text-xs mt-1">{{ form.subject.errors.0 }}</p>{%
+                    endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.question_number.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Question Number</label>
+                    <input type="number" name="{{ form.question_number.name }}"
+                        id="{{ form.question_number.id_for_label }}" value="{{ form.question_number.value|default:'' }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                        required>
+                    {% if form.question_number.errors %}<p class="text-red-500 text-xs mt-1">{{
+                        form.question_number.errors.0 }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.marks.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Marks</label>
+                    <input type="number" name="{{ form.marks.name }}" id="{{ form.marks.id_for_label }}"
+                        value="{{ form.marks.value|default:'' }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                        required>
+                    {% if form.marks.errors %}<p class="text-red-500 text-xs mt-1">{{ form.marks.errors.0 }}</p>{% endif
+                    %}
+                </div>
+
+                <div class="col-span-1 md:col-span-2">
+                    <label for="{{ form.question_type.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Question Type</label>
+                    <select name="{{ form.question_type.name }}" id="{{ form.question_type.id_for_label }}" required
+                        onchange="toggleAnswerFields()"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        <option value="MCQ" {% if form.question_type.value=="MCQ" %}selected{% endif %}>Multiple Choice
+                        </option>
+                        <option value="SHORT" {% if form.question_type.value=="SHORT" %}selected{% endif %}>Short Answer
+                        </option>
+                        <option value="LONG" {% if form.question_type.value=="LONG" %}selected{% endif %}>Long Answer
+                        </option>
+                    </select>
+                    {% if form.question_type.errors %}<p class="text-red-500 text-xs mt-1">{{
+                        form.question_type.errors.0 }}</p>{% endif %}
+                </div>
+
+                <div class="col-span-1 md:col-span-2">
+                    <label for="{{ form.question_text.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Question Text</label>
+                    <textarea name="{{ form.question_text.name }}" id="{{ form.question_text.id_for_label }}" rows="2"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                        required>{{ form.question_text.value|default:'' }}</textarea>
+                    {% if form.question_text.errors %}<p class="text-red-500 text-xs mt-1">{{
+                        form.question_text.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Answer Key Config (Hidden Field) -->
+                <input type="hidden" name="{{ form.answer_key.name }}" id="id_answer_key_json">
+
+                <!-- MCQ Fields -->
+                <div id="mcq-fields" class="col-span-1 md:col-span-2 border-t pt-4">
+                    <h3 class="font-medium text-gray-800 mb-2">Correct Answer (for MCQ)</h3>
+                    <input type="text" id="mcq_answer" placeholder="e.g., A, B, Option 1"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                </div>
+
+                <!-- Short/Long Answer Fields -->
+                <div id="text-fields" class="col-span-1 md:col-span-2 border-t pt-4 hidden">
+                    <h3 class="font-medium text-gray-800 mb-2">Grading Criteria</h3>
+
+                    <div class="mb-3">
+                        <label class="block text-sm text-gray-700 mb-1">Expected Answer (Model Answer)</label>
+                        <textarea id="expected_answer" rows="3"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-700 mb-1">Keywords (Comma separated)</label>
+                        <input type="text" id="keywords" placeholder="e.g., photosynthesis, plants, sunlight"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        <p class="text-xs text-gray-500 mt-1">These words must be present for checking similarity.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-8 flex justify-end">
+                <button type="submit" onclick="prepareJson()"
+                    class="bg-primary hover:bg-blue-700 text-white px-6 py-2 rounded-md transition shadow-sm">
+                    Save Question
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleAnswerFields() {
+        const type = document.getElementById('{{ form.question_type.id_for_label }}').value;
+        const mcqFields = document.getElementById('mcq-fields');
+        const textFields = document.getElementById('text-fields');
+
+        if (type === 'MCQ') {
+            mcqFields.classList.remove('hidden');
+            textFields.classList.add('hidden');
+        } else {
+            mcqFields.classList.add('hidden');
+            textFields.classList.remove('hidden');
+        }
+    }
+
+    function prepareJson() {
+        const type = document.getElementById('{{ form.question_type.id_for_label }}').value;
+        let data = {};
+
+        if (type === 'MCQ') {
+            data = {
+                'correct_answer': document.getElementById('mcq_answer').value
+            };
+        } else {
+            const keywords = document.getElementById('keywords').value.split(',').map(s => s.trim()).filter(s => s);
+            data = {
+                'expected_answer': document.getElementById('expected_answer').value,
+                'keywords': keywords,
+                'weights': new Array(keywords.length).fill(1 / keywords.length) // Equal weights by default
+            };
+        }
+
+        document.getElementById('id_answer_key_json').value = JSON.stringify(data);
+    }
+
+    // Initial run
+    toggleAnswerFields();
+</script>
+{% endblock %}
