@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Grading Configuration{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Grading Configuration</h1>
+    <p class="text-gray-600">Manage grading rules and probabilistic scoring parameters</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Grading Rules (Nepal Scale) -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">Grading Scale (Nepal)</h3>
+            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Standard</span>
+        </div>
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Range (%)
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GPA</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Description</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for rule in grading_rules %}
+                <tr>
+                    <td class="px-6 py-3 whitespace-nowrap font-bold 
+                        {% if rule.grade == 'A+' or rule.grade == 'A' %}text-green-600
+                        {% elif rule.grade == 'NG' %}text-red-600
+                        {% else %}text-gray-900{% endif %}">
+                        {{ rule.grade }}
+                    </td>
+                    <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
+                        {{ rule.min_percentage|floatformat:0 }} - {{ rule.max_percentage|floatformat:0 }}
+                    </td>
+                    <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-900 font-medium">
+                        {{ rule.gpa }}
+                    </td>
+                    <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500">
+                        {{ rule.description }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No rules found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Probabilistic Grading Configurations -->
+    <div class="space-y-6">
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-800">Probabilistic Grading AI Config</h3>
+            </div>
+
+            {% for config in configs %}
+            <div class="p-6 border-b border-gray-100 last:border-0">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-bold text-gray-900">{{ config.name }}</h4>
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Active</span>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">Full Marks Threshold</span>
+                            <span class="font-medium">{{ config.full_marks_threshold }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full"
+                                style="width: {% widthratio config.full_marks_threshold 1 100 %}%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Confidence score needed for 100% marks</p>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600">Partial Marks Threshold</span>
+                            <span class="font-medium">{{ config.partial_marks_threshold }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-yellow-500 h-2 rounded-full"
+                                style="width: {% widthratio config.partial_marks_threshold 1 100 %}%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Confidence score needed for filtered marks</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div class="bg-gray-50 p-3 rounded">
+                            <span class="block text-xs text-gray-500">Partial Award %</span>
+                            <span class="font-bold text-gray-800">{{ config.partial_marks_percentage|floatformat:0
+                                }}%</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded">
+                            <span class="block text-xs text-gray-500">Algorithms</span>
+                            <div class="flex space-x-1 mt-1">
+                                <span
+                                    class="w-2 h-2 rounded-full {% if config.use_keyword_matching %}bg-blue-500{% else %}bg-gray-300{% endif %}"
+                                    title="Keyword"></span>
+                                <span
+                                    class="w-2 h-2 rounded-full {% if config.use_similarity_scoring %}bg-blue-500{% else %}bg-gray-300{% endif %}"
+                                    title="Similarity"></span>
+                                <span
+                                    class="w-2 h-2 rounded-full {% if config.use_bayesian_inference %}bg-blue-500{% else %}bg-gray-300{% endif %}"
+                                    title="Bayesian"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="p-6 text-center text-gray-500">
+                No configurations found.
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg shadow-sm">
+            <h4 class="font-bold text-blue-800 mb-2">How AI Grading Works</h4>
+            <ul class="list-disc list-inside text-sm text-blue-700 space-y-1">
+                <li>System extracts keywords from student answers.</li>
+                <li>Calculates semantic similarity using Levenshtein & Cosine.</li>
+                <li>Applies Bayesian probability to determine confidence.</li>
+                <li>Assigns marks based on confidence thresholds automatically.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
