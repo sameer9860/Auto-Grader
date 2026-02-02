@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Create Exam{% endblock %}
 
@@ -23,31 +24,39 @@
             {% endif %}
 
             <div class="grid grid-cols-1 gap-6">
+                <!-- Exam Name -->
                 <div>
-                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Exam
-                        Name</label>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Exam Name
+                    </label>
                     <input type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}"
                         value="{{ form.name.value|default:'' }}"
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                         placeholder="e.g., First Terminal Examination 2080" required>
-                    {% if form.name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif
-                    %}
+                    {% if form.name.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
+                <!-- Exam Date -->
                 <div>
-                    <label for="{{ form.exam_date.id_for_label }}"
-                        class="block text-sm font-medium text-gray-700 mb-1">Exam Date</label>
+                    <label for="{{ form.exam_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Exam Date
+                    </label>
                     <input type="date" name="{{ form.exam_date.name }}" id="{{ form.exam_date.id_for_label }}"
                         value="{{ form.exam_date.value|date:'Y-m-d'|default:'' }}"
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                         required>
-                    {% if form.exam_date.errors %}<p class="text-red-500 text-xs mt-1">{{ form.exam_date.errors.0 }}</p>
+                    {% if form.exam_date.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.exam_date.errors.0 }}</p>
                     {% endif %}
                 </div>
 
+                <!-- Class -->
                 <div>
-                    <label for="{{ form.student_class.id_for_label }}"
-                        class="block text-sm font-medium text-gray-700 mb-1">Class</label>
+                    <label for="{{ form.student_class.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Class
+                    </label>
                     <select name="{{ form.student_class.name }}" id="{{ form.student_class.id_for_label }}" required
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
                         <option value="">Select Class</option>
@@ -57,13 +66,16 @@
                         </option>
                         {% endfor %}
                     </select>
-                    {% if form.student_class.errors %}<p class="text-red-500 text-xs mt-1">{{
-                        form.student_class.errors.0 }}</p>{% endif %}
+                    {% if form.student_class.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.student_class.errors.0 }}</p>
+                    {% endif %}
                 </div>
 
+                <!-- Subjects -->
                 <div>
-                    <label for="{{ form.subjects.id_for_label }}"
-                        class="block text-sm font-medium text-gray-700 mb-1">Subjects</label>
+                    <label for="{{ form.subjects.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Subjects
+                    </label>
                     <select name="{{ form.subjects.name }}" id="{{ form.subjects.id_for_label }}" multiple required
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 h-32">
                         {% for choice in form.subjects.field.queryset %}
@@ -72,10 +84,12 @@
                         </option>
                         {% endfor %}
                     </select>
-                    <p class="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) or Command (Mac) to select multiple
-                        subjects.</p>
-                    {% if form.subjects.errors %}<p class="text-red-500 text-xs mt-1">{{ form.subjects.errors.0 }}</p>{%
-                    endif %}
+                    <p class="text-xs text-gray-500 mt-1">
+                        Hold Ctrl (Windows) or Command (Mac) to select multiple subjects.
+                    </p>
+                    {% if form.subjects.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.subjects.errors.0 }}</p>
+                    {% endif %}
                 </div>
             </div>
 
