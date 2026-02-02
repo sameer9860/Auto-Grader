@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <h1 class="text-2xl font-bold text-gray-800">Students</h1>
+
+    <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+        <!-- Search and Filter -->
+        <form class="flex gap-2" method="get">
+            <select name="class"
+                class="rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                <option value="">All Classes</option>
+                {% for cls in classes %}
+                <option value="{{ cls.id }}" {% if request.GET.class==cls.id|stringformat:"s" %}selected{% endif %}>
+                    {{ cls.name }} - {{ cls.section }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <input type="text" name="search" placeholder="Search name or roll no..." value="{{ request.GET.search }}"
+                class="rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+
+            <button type="submit" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md transition">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+
+        <a href="{% url 'students:student_add' %}"
+            class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md transition whitespace-nowrap text-center">
+            <i class="fas fa-plus mr-2"></i> Add Student
+        </a>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Info
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roll No</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for student in students %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10">
+                            {% if student.photo %}
+                            <img class="h-10 w-10 rounded-full object-cover" src="{{ student.photo.url }}" alt="">
+                            {% else %}
+                            <div
+                                class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">{{ student.name }}</div>
+                            <div class="text-xs text-gray-500">{{ student.email }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm text-gray-900">{{ student.student_class.name }}</span>
+                    <span class="text-xs text-gray-500 block">Sec: {{ student.section }}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ student.roll_no }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ student.phone|default:"-" }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href="{% url 'students:student_detail' student.id %}"
+                        class="text-primary hover:text-blue-900 mr-3" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="{% url 'students:student_edit' student.id %}" class="text-indigo-600 hover:text-indigo-900"
+                        title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                    No students found.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <div class="flex justify-between items-center">
+            <div>
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.class %}&class={{ request.GET.class }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                    class="bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 px-4 py-2 text-sm font-medium rounded-md">Previous</a>
+                {% endif %}
+            </div>
+            <div class="text-sm text-gray-700">
+                Page <span class="font-medium">{{ page_obj.number }}</span> of <span class="font-medium">{{
+                    page_obj.paginator.num_pages }}</span>
+            </div>
+            <div>
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.class %}&class={{ request.GET.class }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                    class="bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 px-4 py-2 text-sm font-medium rounded-md">Next</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
