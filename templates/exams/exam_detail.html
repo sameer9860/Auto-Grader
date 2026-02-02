@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ exam.name }} - Details{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="flex items-center mb-6">
+        <a href="{% url 'exams:exam_list' %}" class="text-gray-500 hover:text-gray-700 mr-4">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="text-2xl font-bold text-gray-800">{{ exam.name }}</h1>
+        <div class="ml-auto flex space-x-3">
+            <a href="{% url 'exams:question_add' exam.id %}"
+                class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md transition">
+                <i class="fas fa-plus mr-2"></i> Add Question
+            </a>
+            <a href="{% url 'grading:bulk_entry' exam.id %}"
+                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition">
+                <i class="fas fa-edit mr-2"></i> Enter Marks
+            </a>
+        </div>
+    </div>
+
+    <!-- Exam Details Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+        <div class="md:flex">
+            <div class="p-6 w-full">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div>
+                        <p class="text-sm text-gray-500">Date</p>
+                        <p class="font-medium text-lg">{{ exam.exam_date|date:"F j, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Class</p>
+                        <p class="font-medium text-lg">{{ exam.student_class.name }} - {{ exam.student_class.section }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Created By</p>
+                        <p class="font-medium text-lg">{{ exam.created_by.get_full_name|default:exam.created_by.username
+                            }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Total Questions</p>
+                        <p class="font-medium text-lg">{{ questions.count }}</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 border-t pt-4">
+                    <p class="text-sm text-gray-500 mb-2">Subjects</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for subject in exam.subjects.all %}
+                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">
+                            {{ subject.name }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questions List -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">Questions</h3>
+        </div>
+
+        <div class="divide-y divide-gray-200">
+            {% for question in questions %}
+            <div class="p-6 hover:bg-gray-50 transition">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-blue-100 text-primary font-bold px-2 py-1 rounded text-sm">Q{{
+                            question.question_number }}</span>
+                        <span class="text-sm font-medium text-gray-500 uppercase">{{ question.get_question_type_display
+                            }}</span>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ question.subject.name
+                            }}</span>
+                    </div>
+                    <span class="font-bold text-gray-800">{{ question.marks }} Marks</span>
+                </div>
+
+                <h4 class="text-lg font-medium text-gray-900 mb-3">{{ question.question_text }}</h4>
+
+                <!-- Answer Key Preview -->
+                <div class="bg-gray-50 p-3 rounded-md border border-gray-200 text-sm">
+                    <p class="font-semibold text-gray-700 mb-1">Answer Key:</p>
+                    {% if question.question_type == 'MCQ' %}
+                    <p>Correct Answer: <span class="font-bold text-green-600">{{ question.answer_key.correct_answer
+                            }}</span></p>
+                    {% else %}
+                    {% if question.answer_key.keywords %}
+                    <div class="mb-1">
+                        <span class="text-gray-600">Keywords:</span>
+                        {% for kw in question.answer_key.keywords %}
+                        <span class="inline-block bg-white border px-1 rounded text-xs mr-1">{{ kw }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if question.answer_key.expected_answer %}
+                    <div>
+                        <span class="text-gray-600">Expected:</span>
+                        <span class="italic text-gray-800">{{ question.answer_key.expected_answer|truncatechars:100
+                            }}</span>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="p-8 text-center text-gray-500">
+                <p class="mb-2">No questions added yet.</p>
+                <a href="{% url 'exams:question_add' exam.id %}" class="text-primary hover:underline">Add your first
+                    question</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
