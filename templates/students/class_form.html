@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Class{% else %}Add Class{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center mb-6">
+        <a href="{% url 'students:class_list' %}" class="text-gray-500 hover:text-gray-700 mr-4">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="text-2xl font-bold text-gray-800">{% if form.instance.pk %}Edit Class{% else %}Add New Class{% endif
+            %}</h1>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <p class="font-bold">Please correct the errors below:</p>
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 gap-6">
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Class
+                        Name</label>
+                    <input type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}"
+                        value="{{ form.name.value|default:'' }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                        required>
+                    {% if form.name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif
+                    %}
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="{{ form.section.id_for_label }}"
+                            class="block text-sm font-medium text-gray-700 mb-1">Section</label>
+                        <input type="text" name="{{ form.section.name }}" id="{{ form.section.id_for_label }}"
+                            value="{{ form.section.value|default:'' }}"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                            required>
+                        {% if form.section.errors %}<p class="text-red-500 text-xs mt-1">{{ form.section.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.year.id_for_label }}"
+                            class="block text-sm font-medium text-gray-700 mb-1">Academic Year</label>
+                        <input type="number" name="{{ form.year.name }}" id="{{ form.year.id_for_label }}"
+                            value="{{ form.year.value|default:'' }}"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                            required>
+                        {% if form.year.errors %}<p class="text-red-500 text-xs mt-1">{{ form.year.errors.0 }}</p>{%
+                        endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <label for="{{ form.teacher.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Class Teacher</label>
+                    <select name="{{ form.teacher.name }}" id="{{ form.teacher.id_for_label }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        {% for choice in form.teacher.field.queryset %}
+                        <option value="{{ choice.pk }}" {% if form.teacher.value==choice.pk %}selected{% endif %}>
+                            {{ choice.get_full_name|default:choice.username }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.teacher.errors %}<p class="text-red-500 text-xs mt-1">{{ form.teacher.errors.0 }}</p>{%
+                    endif %}
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end">
+                <button type="submit"
+                    class="bg-primary hover:bg-blue-700 text-white px-6 py-2 rounded-md transition shadow-sm">
+                    Save Class
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
