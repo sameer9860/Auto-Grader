@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white p-8 rounded-lg shadow-sm">
+        <div class="flex items-center space-x-6 mb-8">
+            <div
+                class="w-20 h-20 bg-primary text-white rounded-full flex items-center justify-center text-3xl font-bold">
+                {{ user.first_name|first|default:user.username|first|upper }}
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">
+                    {{ user.first_name }} {{ user.last_name }}
+                    {% if not user.first_name and not user.last_name %}{{ user.username }}{% endif %}
+                </h1>
+                <p class="text-gray-500">{{ user.email }}</p>
+                <div class="mt-2 text-sm bg-blue-100 text-primary py-1 px-3 rounded-full inline-block">
+                    {{ user.get_role_display }}
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-100 pt-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Account Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Username</p>
+                    <p class="font-medium">{{ user.username }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Date Joined</p>
+                    <p class="font-medium">{{ user.date_joined|date:"F j, Y" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Phone</p>
+                    <p class="font-medium">{{ user.phone|default:"Not provided" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Last Login</p>
+                    <p class="font-medium">{{ user.last_login|date:"F j, Y H:i" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
