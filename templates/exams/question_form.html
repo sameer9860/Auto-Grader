@@ -30,7 +30,7 @@
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
                         {% for choice in form.subject.field.queryset %}
                         {% if choice in exam.subjects.all %}
-                        <option value="{{ choice.pk }}" {% if form.subject.value==choice.pk %}selected{% endif %}>
+                        <option value="{{ choice.pk }}" {% if form.subject.value == choice.pk %}selected{% endif %}>
                             {{ choice.name }}
                         </option>
                         {% endif %}
@@ -68,11 +68,11 @@
                     <select name="{{ form.question_type.name }}" id="{{ form.question_type.id_for_label }}" required
                         onchange="toggleAnswerFields()"
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
-                        <option value="MCQ" {% if form.question_type.value=="MCQ" %}selected{% endif %}>Multiple Choice
+                        <option value="MCQ" {% if form.question_type.value == "MCQ" %}selected{% endif %}>Multiple Choice
                         </option>
-                        <option value="SHORT" {% if form.question_type.value=="SHORT" %}selected{% endif %}>Short Answer
+                        <option value="SHORT" {% if form.question_type.value == "SHORT" %}selected{% endif %}>Short Answer
                         </option>
-                        <option value="LONG" {% if form.question_type.value=="LONG" %}selected{% endif %}>Long Answer
+                        <option value="LONG" {% if form.question_type.value == "LONG" %}selected{% endif %}>Long Answer
                         </option>
                     </select>
                     {% if form.question_type.errors %}<p class="text-red-500 text-xs mt-1">{{

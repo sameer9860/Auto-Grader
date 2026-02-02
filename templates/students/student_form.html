@@ -71,7 +71,7 @@
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
                         <option value="">Select Class</option>
                         {% for choice in form.student_class.field.queryset %}
-                        <option value="{{ choice.pk }}" {% if form.student_class.value==choice.pk %}selected{% endif %}>
+                        <option value="{{ choice.pk }}" {% if form.student_class.value == choice.pk %}selected{% endif %}>
                             {{ choice.name }} - {{ choice.section }} ({{ choice.year }})
                         </option>
                         {% endfor %}

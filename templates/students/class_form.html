@@ -65,7 +65,7 @@
                     <select name="{{ form.teacher.name }}" id="{{ form.teacher.id_for_label }}"
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
                         {% for choice in form.teacher.field.queryset %}
-                        <option value="{{ choice.pk }}" {% if form.teacher.value==choice.pk %}selected{% endif %}>
+                        <option value="{{ choice.pk }}" {% if form.teacher.value == choice.pk %}selected{% endif %}>
                             {{ choice.get_full_name|default:choice.username }}
                         </option>
                         {% endfor %}

@@ -3,6 +3,7 @@
 {% block title %}Students{% endblock %}
 
 {% block content %}
+
 <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
     <h1 class="text-2xl font-bold text-gray-800">Students</h1>
 
@@ -13,7 +14,7 @@
                 class="rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
                 <option value="">All Classes</option>
                 {% for cls in classes %}
-                <option value="{{ cls.id }}" {% if request.GET.class_id==cls.id|stringformat:"s" %}selected{% endif %}>
+                <option value="{{ cls.id }}" {% if request.GET.class_id == cls.id|stringformat:"s" %}selected{% endif %}>
                     {{ cls.name }} - {{ cls.section }}
                 </option>
                 {% endfor %}
