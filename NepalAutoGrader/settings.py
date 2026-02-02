@@ -138,7 +138,7 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Login/Logout URLs
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
+LOGIN_REDIRECT_URL = '/grading/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 # CORS settings (for API)

@@ -104,7 +104,7 @@
         <div class="flex justify-between items-center">
             <div>
                 {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.class %}&class={{ request.GET.class }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.class_id %}&class_id={{ request.GET.class_id }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
                     class="bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 px-4 py-2 text-sm font-medium rounded-md">Previous</a>
                 {% endif %}
             </div>
@@ -114,7 +114,7 @@
             </div>
             <div>
                 {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.class %}&class={{ request.GET.class }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.class_id %}&class_id={{ request.GET.class_id }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
                     class="bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 px-4 py-2 text-sm font-medium rounded-md">Next</a>
                 {% endif %}
             </div>
