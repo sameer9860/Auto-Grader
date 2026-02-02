@@ -1,3 +1,4 @@
 from django.db import models
 
-# Create your models here.
+# Reports app doesn't need models - it will use existing models
+# This file is kept for Django app structure
