@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Student{% else %}Add Student{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex items-center mb-6">
+        <a href="{% url 'students:student_list' %}" class="text-gray-500 hover:text-gray-700 mr-4">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="text-2xl font-bold text-gray-800">{% if form.instance.pk %}Edit Student{% else %}Add New Student{%
+            endif %}</h1>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <p class="font-bold">Please correct the errors below:</p>
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Personal Info -->
+                <div class="col-span-1 md:col-span-2">
+                    <h3 class="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Personal Information</h3>
+                </div>
+
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Full
+                        Name</label>
+                    <input type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}"
+                        value="{{ form.name.value|default:'' }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                        required>
+                    {% if form.name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif
+                    %}
+                </div>
+
+                <div>
+                    <label for="{{ form.dob.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Date
+                        of Birth</label>
+                    <input type="date" name="{{ form.dob.name }}" id="{{ form.dob.id_for_label }}"
+                        value="{{ form.dob.value|date:'Y-m-d'|default:'' }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                        required>
+                    {% if form.dob.errors %}<p class="text-red-500 text-xs mt-1">{{ form.dob.errors.0 }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.photo.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Photo</label>
+                    <input type="file" name="{{ form.photo.name }}" id="{{ form.photo.id_for_label }}"
+                        class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-primary hover:file:bg-blue-100">
+                    {% if form.photo.errors %}<p class="text-red-500 text-xs mt-1">{{ form.photo.errors.0 }}</p>{% endif
+                    %}
+                </div>
+
+                <!-- Academic Info -->
+                <div class="col-span-1 md:col-span-2 mt-4">
+                    <h3 class="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Academic Information</h3>
+                </div>
+
+                <div>
+                    <label for="{{ form.student_class.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Class</label>
+                    <select name="{{ form.student_class.name }}" id="{{ form.student_class.id_for_label }}" required
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        <option value="">Select Class</option>
+                        {% for choice in form.student_class.field.queryset %}
+                        <option value="{{ choice.pk }}" {% if form.student_class.value==choice.pk %}selected{% endif %}>
+                            {{ choice.name }} - {{ choice.section }} ({{ choice.year }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.student_class.errors %}<p class="text-red-500 text-xs mt-1">{{
+                        form.student_class.errors.0 }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.section.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Section</label>
+                    <input type="text" name="{{ form.section.name }}" id="{{ form.section.id_for_label }}"
+                        value="{{ form.section.value|default:'' }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                        required>
+                    {% if form.section.errors %}<p class="text-red-500 text-xs mt-1">{{ form.section.errors.0 }}</p>{%
+                    endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.roll_no.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Roll Number</label>
+                    <input type="text" name="{{ form.roll_no.name }}" id="{{ form.roll_no.id_for_label }}"
+                        value="{{ form.roll_no.value|default:'' }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                        required>
+                    {% if form.roll_no.errors %}<p class="text-red-500 text-xs mt-1">{{ form.roll_no.errors.0 }}</p>{%
+                    endif %}
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-span-1 md:col-span-2 mt-4">
+                    <h3 class="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Contact Information</h3>
+                </div>
+
+                <div>
+                    <label for="{{ form.email.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}"
+                        value="{{ form.email.value|default:'' }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                    {% if form.email.errors %}<p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>{% endif
+                    %}
+                </div>
+
+                <div>
+                    <label for="{{ form.phone.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input type="text" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}"
+                        value="{{ form.phone.value|default:'' }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                    {% if form.phone.errors %}<p class="text-red-500 text-xs mt-1">{{ form.phone.errors.0 }}</p>{% endif
+                    %}
+                </div>
+
+                <div>
+                    <label for="{{ form.parent_phone.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Parent's Phone</label>
+                    <input type="text" name="{{ form.parent_phone.name }}" id="{{ form.parent_phone.id_for_label }}"
+                        value="{{ form.parent_phone.value|default:'' }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                    {% if form.parent_phone.errors %}<p class="text-red-500 text-xs mt-1">{{ form.parent_phone.errors.0
+                        }}</p>{% endif %}
+                </div>
+
+                <div class="col-span-1 md:col-span-2">
+                    <label for="{{ form.address.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <textarea name="{{ form.address.name }}" id="{{ form.address.id_for_label }}" rows="3"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                        required>{{ form.address.value|default:'' }}</textarea>
+                    {% if form.address.errors %}<p class="text-red-500 text-xs mt-1">{{ form.address.errors.0 }}</p>{%
+                    endif %}
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end">
+                <button type="submit"
+                    class="bg-primary hover:bg-blue-700 text-white px-6 py-2 rounded-md transition shadow-sm">
+                    Save Student
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
