@@ -4,6 +4,7 @@ from django.views.generic import TemplateView, ListView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db.models import Count, Avg
+from decimal import Decimal
 from .models import Result, GradingRule, ProbabilisticGradingConfig
 from exams.models import Exam, AnswerSheet
 from students.models import Student
@@ -70,7 +71,37 @@ class BulkMarkEntryView(LoginRequiredMixin, TemplateView):
         context['exam'] = exam
         context['students'] = exam.student_class.students.all()
         context['subjects'] = exam.subjects.all()
-        return context
+    def post(self, request, *args, **kwargs):
+        exam_id = self.kwargs.get('exam_id')
+        exam = get_object_or_404(Exam, id=exam_id)
+        students = exam.student_class.students.all()
+        subjects = exam.subjects.all()
+        
+        for student in students:
+            for subject in subjects:
+                # Key format: mark_studentId_subjectId
+                key = f'mark_{student.id}_{subject.id}'
+                mark_value = request.POST.get(key)
+                
+                if mark_value and mark_value.strip():
+                    try:
+                        marks = Decimal(mark_value)
+                        
+                        # Update or create result
+                        result, created = Result.objects.update_or_create(
+                            student=student,
+                            exam=exam,
+                            subject=subject,
+                            defaults={'marks_obtained': marks}
+                        )
+                        result.save() # Trigger save to calculate grade
+                        
+                    except Exception as e:
+                        # Log error or handle gracefully
+                        pass
+        
+        messages.success(request, 'Marks saved successfully!')
+        return redirect('exams:exam_list')
 
 
 class GradingConfigView(LoginRequiredMixin, ListView):

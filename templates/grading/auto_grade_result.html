@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Grading Result{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center mb-6">
+        <a href="{% url 'exams:exam_detail' answer_sheet.exam.id %}" class="text-gray-500 hover:text-gray-700 mr-4">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="text-2xl font-bold text-gray-800">Grading Result Analysis</h1>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+            <div>
+                <h2 class="text-lg font-bold text-gray-900">{{ answer_sheet.student.name }}</h2>
+                <p class="text-sm text-gray-500">{{ answer_sheet.exam.name }} - {{ answer_sheet.subject.name }}</p>
+            </div>
+            <div class="text-right">
+                <span class="block text-2xl font-bold text-primary">{{ grading_result.percentage|floatformat:1
+                    }}%</span>
+                <span class="text-sm text-gray-500">{{ grading_result.total_marks }} / {{
+                    answer_sheet.subject.full_marks }} Marks</span>
+            </div>
+        </div>
+
+        <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div>
+                <p class="text-xs text-gray-500 uppercase tracking-wide">Grade</p>
+                <p class="text-3xl font-bold text-gray-800">{{ grading_result.grade }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 uppercase tracking-wide">GPA</p>
+                <p class="text-3xl font-bold text-gray-800">{{ grading_result.gpa }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 uppercase tracking-wide">Status</p>
+                <p
+                    class="text-xl font-bold {% if grading_result.is_pass %}text-green-600{% else %}text-red-600{% endif %}">
+                    {% if grading_result.is_pass %}PASSED{% else %}FAILED{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Analysis -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">Question-wise Analysis</h3>
+        </div>
+
+        <div class="divide-y divide-gray-200">
+            {% for item in grading_result.question_details %}
+            <div class="p-6 hover:bg-gray-50 transition">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-100 text-primary font-bold px-2 py-1 rounded text-sm">Q{{
+                            item.question_number }}</span>
+                        <span class="text-sm font-medium text-gray-600">{{ item.question_type }}</span>
+                    </div>
+                    <span class="font-bold text-gray-800">
+                        {{ item.marks_awarded }} / {{ item.total_marks }}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 text-sm">
+                    <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                        <p class="font-semibold text-gray-700 mb-1">Student Answer:</p>
+                        <p class="text-gray-800 italic">"{{ item.student_answer }}"</p>
+                    </div>
+
+                    {% if item.question_type == 'MCQ' %}
+                    <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                        <p class="font-semibold text-gray-700 mb-1">Result:</p>
+                        {% if item.is_correct %}
+                        <p class="text-green-600 font-bold"><i class="fas fa-check-circle"></i> Correct</p>
+                        {% else %}
+                        <p class="text-red-600 font-bold"><i class="fas fa-times-circle"></i> Incorrect (Expected: {{
+                            item.correct_answer }})</p>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="bg-gray-50 p-3 rounded border border-gray-100 space-y-2">
+                        <p class="font-semibold text-gray-700 mb-1">AI Analysis:</p>
+                        <div class="flex justify-between">
+                            <span>Keyword Match:</span>
+                            <span class="font-medium">{{ item.keyword_match_score|default:"0"|floatformat:2 }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Similarity:</span>
+                            <span class="font-medium">{{ item.similarity_score|default:"0"|floatformat:2 }}</span>
+                        </div>
+                        <div class="border-t pt-1 mt-1 flex justify-between font-bold text-indigo-700">
+                            <span>Confidence:</span>
+                            <span>{{ item.confidence_score|default:"0"|floatformat:2 }}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Verdict: <span class="font-bold">{{ item.marks_category|default:"-"|upper }}</span>
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
