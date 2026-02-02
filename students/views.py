@@ -17,7 +17,7 @@ class StudentListView(LoginRequiredMixin, ListView):
         queryset = Student.objects.select_related('student_class').all()
         
         # Filter by class if specified
-        class_id = self.request.GET.get('class')
+        class_id = self.request.GET.get('class_id')
         if class_id:
             queryset = queryset.filter(student_class_id=class_id)
         
