@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Exam, Question
+from .models import Exam, Question, AnswerSheet
 from students.models import Subject
 
 
@@ -60,3 +60,39 @@ class QuestionCreateView(LoginRequiredMixin, CreateView):
         
     def get_success_url(self):
         return reverse('exams:exam_detail', kwargs={'pk': self.exam.pk})
+
+
+class AnswerSheetCreateView(LoginRequiredMixin, CreateView):
+    """Simulate taking an exam / submitting answers"""
+    model = AnswerSheet
+    template_name = 'exams/take_exam.html'
+    fields = ['student'] # We'll handle questions manually
+    
+    def dispatch(self, request, *args, **kwargs):
+        self.exam = get_object_or_404(Exam, pk=kwargs['exam_id'])
+        return super().dispatch(request, *args, **kwargs)
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['exam'] = self.exam
+        context['questions'] = self.exam.questions.all().order_by('question_number')
+        # Filter students who belong to this class
+        context['students'] = self.exam.student_class.students.all()
+        return context
+        
+    def form_valid(self, form):
+        form.instance.exam = self.exam
+        
+        # Construct answers JSON
+        answers = {}
+        for key, value in self.request.POST.items():
+            if key.startswith('question_'):
+                q_id = key.split('_')[1]
+                answers[q_id] = value
+        
+        form.instance.submitted_answers = answers
+        return super().form_valid(form)
+        
+    def get_success_url(self):
+        return reverse('grading:auto_grade', kwargs={'answer_sheet_id': self.object.id})
+

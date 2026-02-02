@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Take Exam - {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center mb-6">
+        <a href="{% url 'exams:exam_detail' exam.id %}" class="text-gray-500 hover:text-gray-700 mr-4">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="text-2xl font-bold text-gray-800">Submit Answer Sheet</h1>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+            <div class="p-6 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-gray-900">{{ exam.name }}</h2>
+                <div class="text-right">
+                    <p class="text-sm font-medium text-gray-900">{{ exam.exam_date|date:"F j, Y" }}</p>
+                    <p class="text-xs text-gray-500">Class: {{ exam.student_class.name }} {{ exam.student_class.section
+                        }}</p>
+                </div>
+            </div>
+
+            <div class="p-6 border-b border-gray-200">
+                <label for="{{ form.student.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Select
+                    Student</label>
+                <select name="{{ form.student.name }}" id="{{ form.student.id_for_label }}" required
+                    class="w-full max-w-md rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                    <option value="">-- Select Student --</option>
+                    {% for student in students %}
+                    <option value="{{ student.pk }}" {% if form.student.value==student.pk %}selected{% endif %}>
+                        {{ student.name }} ({{ student.roll_no }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            {% for question in questions %}
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-100 text-primary font-bold px-2 py-1 rounded text-sm">Q{{
+                            question.question_number }}</span>
+                        <span class="text-sm font-medium text-gray-600">
+                            {{ question.get_question_type_display }}
+                            {% if question.question_type == 'MCQ' %}(Select One){% endif %}
+                        </span>
+                    </div>
+                    <span class="font-bold text-gray-800">{{ question.marks }} Marks</span>
+                </div>
+
+                <div class="p-6">
+                    <p class="text-lg text-gray-900 mb-4">{{ question.question_text }}</p>
+
+                    {% if question.question_type == 'MCQ' %}
+                    <div class="space-y-2">
+                        <label class="inline-flex items-center space-x-2">
+                            <input type="radio" name="question_{{ question.id }}" value="A"
+                                class="form-radio text-primary">
+                            <span>A</span>
+                        </label>
+                        <label class="inline-flex items-center space-x-2">
+                            <input type="radio" name="question_{{ question.id }}" value="B"
+                                class="form-radio text-primary">
+                            <span>B</span>
+                        </label>
+                        <label class="inline-flex items-center space-x-2">
+                            <input type="radio" name="question_{{ question.id }}" value="C"
+                                class="form-radio text-primary">
+                            <span>C</span>
+                        </label>
+                        <label class="inline-flex items-center space-x-2">
+                            <input type="radio" name="question_{{ question.id }}" value="D"
+                                class="form-radio text-primary">
+                            <span>D</span>
+                        </label>
+                    </div>
+                    {% else %}
+                    <textarea name="question_{{ question.id }}" rows="4"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                        placeholder="Type your answer here..."></textarea>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+                No questions found in this exam.
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-8 flex justify-end pb-12">
+            <button type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white text-lg font-medium px-8 py-3 rounded-md transition shadow-lg flex items-center">
+                <i class="fas fa-check-circle mr-2"></i> Submit Answers & Auto-Grade
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
