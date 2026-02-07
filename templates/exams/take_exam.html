@@ -32,7 +32,7 @@
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
                         <option value="">-- Select Student --</option>
                         {% for student in students %}
-                        <option value="{{ student.pk }}" {% if form.student.value==student.pk %}selected{% endif %}>
+                        <option value="{{ student.pk }}" {% if form.student.value == student.pk %}selected{% endif %}>
                             {{ student.name }} ({{ student.roll_no }})
                         </option>
                         {% endfor %}

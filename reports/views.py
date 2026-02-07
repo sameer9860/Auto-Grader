@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from students.models import Student, Class
 from exams.models import Exam
@@ -83,3 +83,11 @@ class ClassResultView(LoginRequiredMixin, TemplateView):
         context['student_results'] = student_results
         
         return context
+
+class ExamResultListView(LoginRequiredMixin, ListView):
+    """View to list all exams for result viewing"""
+    model = Exam
+    template_name = 'reports/exam_result_list.html'
+    context_object_name = 'exams'
+    ordering = ['-exam_date']
+

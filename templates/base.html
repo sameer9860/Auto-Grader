@@ -1,11 +1,12 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}NepalAutoGrader{% endblock %} | NepalAutoGrader</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -25,18 +26,19 @@
             }
         }
     </script>
-    
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    
+
     {% block extra_head %}{% endblock %}
 </head>
+
 <body class="bg-gray-50 font-sans text-gray-800 min-h-screen flex flex-col">
     <!-- Navbar -->
     <nav class="bg-primary text-white shadow-lg print:hidden">
@@ -47,26 +49,28 @@
                     <i class="fas fa-graduation-cap text-white"></i>
                     <span>NepalAutoGrader</span>
                 </a>
-                
+
                 <!-- Navigation Links -->
                 {% if user.is_authenticated %}
                 <div class="hidden md:flex space-x-6 items-center">
                     <a href="{% url 'grading:dashboard' %}" class="hover:text-gray-200 transition">Dashboard</a>
                     <a href="{% url 'students:student_list' %}" class="hover:text-gray-200 transition">Students</a>
                     <a href="{% url 'exams:exam_list' %}" class="hover:text-gray-200 transition">Exams</a>
+                    <a href="{% url 'reports:exam_result_list' %}" class="hover:text-gray-200 transition">Results</a>
                     <a href="{% url 'grading:grading_config' %}" class="hover:text-gray-200 transition">Config</a>
                 </div>
-                
+
                 <!-- User Menu -->
                 <div class="flex items-center space-x-4">
                     <div class="text-sm">
                         <span class="block font-semibold">{{ user.username }}</span>
                         <span class="text-xs opacity-80">{{ user.get_role_display }}</span>
                     </div>
-                    
+
                     <form action="{% url 'accounts:logout' %}" method="post" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="bg-secondary hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition transition-colors">
+                        <button type="submit"
+                            class="bg-secondary hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition transition-colors">
                             Logout
                         </button>
                     </form>
@@ -79,23 +83,24 @@
             </div>
         </div>
     </nav>
-    
+
     <!-- Messages -->
     {% if messages %}
     <div class="container mx-auto px-4 mt-4 print:hidden">
         {% for message in messages %}
-        <div class="p-4 rounded-md mb-2 {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+        <div
+            class="p-4 rounded-md mb-2 {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
             {{ message }}
         </div>
         {% endfor %}
     </div>
     {% endif %}
-    
+
     <!-- Main Content -->
     <main class="flex-grow container mx-auto px-4 py-8">
         {% block content %}{% endblock %}
     </main>
-    
+
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-6 mt-auto print:hidden">
         <div class="container mx-auto px-4 text-center">
@@ -103,8 +108,9 @@
             <p class="text-gray-400 text-sm">Automated Grading System for Nepali Educational Institutions</p>
         </div>
     </footer>
-    
+
     <!-- Scripts -->
     {% block extra_scripts %}{% endblock %}
 </body>
+
 </html>

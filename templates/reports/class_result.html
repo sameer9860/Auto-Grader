@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Class Result - {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div class="flex items-center">
+        <a href="{% url 'reports:exam_result_list' %}" class="text-gray-500 hover:text-gray-700 mr-4">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="text-2xl font-bold text-gray-800">Class Performance: {{ exam.name }}</h1>
+    </div>
+    <div class="print:hidden">
+        <button onclick="window.print()"
+            class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 shadow-sm transition">
+            <i class="fas fa-print mr-2"></i> Print Report
+        </button>
+    </div>
+</div>
+
+<!-- Class Summary -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Class</p>
+        <p class="text-xl font-bold text-gray-800">{{ student_class.name }} - {{ student_class.section }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Students</p>
+        <p class="text-xl font-bold text-gray-800">{{ student_results|length }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Exam Date</p>
+        <p class="text-xl font-bold text-gray-800">{{ exam.exam_date|date:"F j, Y" }}</p>
+    </div>
+</div>
+
+<!-- Results Table -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name
+                </th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Marks
+                </th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage
+                </th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
+                <th
+                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider print:hidden">
+                    Actions</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for report in student_results %}
+            <tr class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">{{ report.student.name }}</div>
+                            <div class="text-xs text-gray-500">Roll No: {{ report.student.roll_no }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">
+                    {{ report.total_marks }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                    {{ report.percentage|floatformat:1 }}%
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <span class="px-2 py-1 text-xs font-bold rounded 
+                        {% if report.grade == 'A+' or report.grade == 'A' %}bg-green-100 text-green-700
+                        {% elif report.grade == 'NG' %}bg-red-100 text-red-700
+                        {% else %}bg-blue-100 text-blue-700{% endif %}">
+                        {{ report.grade }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium print:hidden">
+                    <a href="{% url 'reports:student_result' report.student.id exam.id %}"
+                        class="text-primary hover:text-blue-900">View Detailed</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
