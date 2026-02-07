@@ -12,8 +12,12 @@ class ExamListView(LoginRequiredMixin, ListView):
     model = Exam
     template_name = 'exams/exam_list.html'
     context_object_name = 'exams'
-    paginate_by = 20
-    ordering = ['-exam_date']
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Exam.objects.all()
+        if user.role == 'TEACHER':
+            queryset = queryset.filter(student_class__teacher=user)
+        return queryset.order_by('-exam_date')
 
 
 class ExamDetailView(LoginRequiredMixin, DetailView):

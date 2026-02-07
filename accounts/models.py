@@ -12,6 +12,7 @@ class CustomUser(AbstractUser):
     ]
     
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='STUDENT')
+    roll_no = models.CharField(max_length=50, blank=True, null=True, help_text="For students, enter their roll number to link results")
     phone = models.CharField(max_length=15, blank=True, null=True)
     
     def __str__(self):

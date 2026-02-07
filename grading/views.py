@@ -22,29 +22,51 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         
         if user.role in ['ADMIN', 'TEACHER']:
             # Statistics for staff
-            context['total_students'] = Student.objects.count()
-            context['total_exams'] = Exam.objects.count()
-            context['total_results'] = Result.objects.count()
+            if user.role == 'TEACHER':
+                context['total_students'] = Student.objects.filter(student_class__teacher=user).count()
+                context['total_exams'] = Exam.objects.filter(student_class__teacher=user).count()
+                context['total_results'] = Result.objects.filter(exam__student_class__teacher=user).count()
+            else:
+                context['total_students'] = Student.objects.count()
+                context['total_exams'] = Exam.objects.count()
+                context['total_results'] = Result.objects.count()
             
             # Recent results for staff
-            context['recent_results'] = Result.objects.select_related(
-                'student', 'exam', 'subject'
-            ).order_by('-generated_at')[:10]
+            results_query = Result.objects.select_related('student', 'exam', 'subject')
+            if user.role == 'TEACHER':
+                results_query = results_query.filter(exam__student_class__teacher=user)
+            context['recent_results'] = results_query.order_by('-generated_at')[:10]
             
             # Grade distribution for staff
-            grade_stats = Result.objects.values('grade').annotate(
+            grade_query = Result.objects.all()
+            if user.role == 'TEACHER':
+                grade_query = grade_query.filter(exam__student_class__teacher=user)
+                
+            grade_stats = grade_query.values('grade').annotate(
                 count=Count('id')
             ).order_by('-count')
             context['grade_stats'] = grade_stats
         else:
             # Statistics for student
-            # Try to find the student record linked to this user (if any)
-            # For now, we'll try matching by email
-            student = Student.objects.filter(email=user.email).first()
+            # Reinforce identification: Try roll_no first, then email
+            student = None
+            if user.roll_no:
+                student = Student.objects.filter(roll_no=user.roll_no).first()
+            
+            if not student:
+                student = Student.objects.filter(email__iexact=user.email).first() if user.email else None
+                
             if student:
                 student_results = Result.objects.filter(student=student)
                 context['total_exams'] = student_results.values('exam').distinct().count()
                 context['total_results'] = student_results.count()
+                
+                # Get unique exams with results for the student
+                student_exams = student_results.values(
+                    'exam__id', 'exam__name', 'exam__exam_date'
+                ).distinct().order_by('-exam__exam_date')
+                context['student_exams'] = student_exams
+                
                 context['recent_results'] = student_results.select_related(
                     'exam', 'subject'
                 ).order_by('-generated_at')[:10]

@@ -17,6 +17,17 @@ class StudentResultView(StudentRequiredMixin, TemplateView):
         student = get_object_or_404(Student, id=self.kwargs['student_id'])
         exam = get_object_or_404(Exam, id=self.kwargs['exam_id'])
         
+        # Security check: Students can only view their own results
+        is_owner = False
+        if self.request.user.roll_no and student.roll_no == self.request.user.roll_no:
+            is_owner = True
+        elif student.email and self.request.user.email and student.email.lower() == self.request.user.email.lower():
+            is_owner = True
+            
+        if self.request.user.role == 'STUDENT' and not is_owner:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
+        
         results = Result.objects.filter(
             student=student,
             exam=exam
@@ -90,5 +101,10 @@ class ExamResultListView(TeacherRequiredMixin, ListView):
     model = Exam
     template_name = 'reports/exam_result_list.html'
     context_object_name = 'exams'
-    ordering = ['-exam_date']
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Exam.objects.all()
+        if user.role == 'TEACHER':
+            queryset = queryset.filter(student_class__teacher=user)
+        return queryset.order_by('-exam_date')
 

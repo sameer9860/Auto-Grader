@@ -113,10 +113,24 @@
         <div class="bg-white p-6 rounded-lg shadow-sm">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Your Profile</h3>
             <div class="space-y-2 text-sm">
+                <p><span class="font-semibold">Name:</span> {{ student_record.name }}</p>
                 <p><span class="font-semibold">Class:</span> {{ student_record.student_class }}</p>
                 <p><span class="font-semibold">Roll No:</span> {{ student_record.roll_no }}</p>
-                <a href="{% url 'reports:student_result' student_record.id 1 %}"
-                    class="mt-4 block text-primary font-medium hover:underline">View Last Detailed Report</a>
+            </div>
+
+            <h3 class="text-lg font-bold text-gray-800 mt-6 mb-4">Your Exams</h3>
+            <div class="space-y-2">
+                {% for exam in student_exams %}
+                <a href="{% url 'reports:student_result' student_record.id exam.exam__id %}"
+                    class="block p-3 bg-gray-50 hover:bg-blue-50 hover:text-primary rounded border border-gray-100 transition">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">{{ exam.exam__name }}</span>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </div>
+                </a>
+                {% empty %}
+                <p class="text-xs text-gray-500 italic">No exam results found yet.</p>
+                {% endfor %}
             </div>
         </div>
         {% endif %}
@@ -128,7 +142,13 @@
                 {% for result in recent_results %}
                 <div class="flex justify-between items-center pb-3 border-b border-gray-100 last:border-0">
                     <div>
-                        <h4 class="font-medium text-gray-800">{{ result.student.name }}</h4>
+                        <h4 class="font-medium text-gray-800">
+                            {% if user.role == 'STUDENT' %}
+                            {{ result.exam.name }}
+                            {% else %}
+                            {{ result.student.name }}
+                            {% endif %}
+                        </h4>
                         <p class="text-xs text-gray-500">{{ result.subject.name }}</p>
                     </div>
                     <span class="px-2 py-1 text-xs font-bold rounded 

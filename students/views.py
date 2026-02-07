@@ -15,7 +15,12 @@ class StudentListView(TeacherRequiredMixin, ListView):
     paginate_by = 20
     
     def get_queryset(self):
+        user = self.request.user
         queryset = Student.objects.select_related('student_class').all()
+        
+        # Data isolation: Teacher only sees students in their own classes
+        if user.role == 'TEACHER':
+            queryset = queryset.filter(student_class__teacher=user)
         
         # Filter by class if specified
         class_id = self.request.GET.get('class_id')
@@ -34,7 +39,11 @@ class StudentListView(TeacherRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['classes'] = Class.objects.all()
+        user = self.request.user
+        if user.role == 'TEACHER':
+            context['classes'] = Class.objects.filter(teacher=user)
+        else:
+            context['classes'] = Class.objects.all()
         return context
 
 
@@ -46,6 +55,10 @@ class StudentDetailView(TeacherRequiredMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Students should not access this view based on mixin, but safety check if student role added
+        if self.request.user.role == 'STUDENT' and self.object.email != self.request.user.email:
+            raise PermissionDenied
+        
         context['results'] = self.object.results.select_related('exam', 'subject').all()
         return context
 
@@ -71,6 +84,12 @@ class ClassListView(TeacherRequiredMixin, ListView):
     model = Class
     template_name = 'students/class_list.html'
     context_object_name = 'classes'
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'TEACHER':
+            return Class.objects.filter(teacher=user)
+        return Class.objects.all()
 
 
 class ClassCreateView(TeacherRequiredMixin, CreateView):
