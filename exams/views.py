@@ -83,6 +83,11 @@ class AnswerSheetCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.exam = self.exam
         
+        # Set subject from POST
+        subject_id = self.request.POST.get('subject')
+        if subject_id:
+            form.instance.subject_id = subject_id
+        
         # Construct answers JSON
         answers = {}
         for key, value in self.request.POST.items():

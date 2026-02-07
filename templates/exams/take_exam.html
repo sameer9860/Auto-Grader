@@ -24,18 +24,30 @@
                 </div>
             </div>
 
-            <div class="p-6 border-b border-gray-200">
-                <label for="{{ form.student.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Select
-                    Student</label>
-                <select name="{{ form.student.name }}" id="{{ form.student.id_for_label }}" required
-                    class="w-full max-w-md rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
-                    <option value="">-- Select Student --</option>
-                    {% for student in students %}
-                    <option value="{{ student.pk }}" {% if form.student.value == student.pk %}selected{% endif %}>
-                        {{ student.name }} ({{ student.roll_no }})
-                    </option>
-                    {% endfor %}
-                </select>
+            <div class="p-6 border-b border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.student.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-1">Select Student</label>
+                    <select name="{{ form.student.name }}" id="{{ form.student.id_for_label }}" required
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        <option value="">-- Select Student --</option>
+                        {% for student in students %}
+                        <option value="{{ student.pk }}" {% if form.student.value==student.pk %}selected{% endif %}>
+                            {{ student.name }} ({{ student.roll_no }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="id_subject" class="block text-sm font-medium text-gray-700 mb-1">Select Subject</label>
+                    <select name="subject" id="id_subject" required
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                        <option value="">-- Select Subject --</option>
+                        {% for subject in exam.subjects.all %}
+                        <option value="{{ subject.pk }}">{{ subject.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
         </div>
 

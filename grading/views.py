@@ -71,6 +71,7 @@ class BulkMarkEntryView(LoginRequiredMixin, TemplateView):
         context['exam'] = exam
         context['students'] = exam.student_class.students.all()
         context['subjects'] = exam.subjects.all()
+        return context
     def post(self, request, *args, **kwargs):
         exam_id = self.kwargs.get('exam_id')
         exam = get_object_or_404(Exam, id=exam_id)
