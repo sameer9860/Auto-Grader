@@ -4,9 +4,10 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import models
 from .models import Student, Class
+from accounts.permissions import TeacherRequiredMixin
 
 
-class StudentListView(LoginRequiredMixin, ListView):
+class StudentListView(TeacherRequiredMixin, ListView):
     """List all students"""
     model = Student
     template_name = 'students/student_list.html'
@@ -37,7 +38,7 @@ class StudentListView(LoginRequiredMixin, ListView):
         return context
 
 
-class StudentDetailView(LoginRequiredMixin, DetailView):
+class StudentDetailView(TeacherRequiredMixin, DetailView):
     """Student detail view with results"""
     model = Student
     template_name = 'students/student_detail.html'
@@ -49,7 +50,7 @@ class StudentDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class StudentCreateView(LoginRequiredMixin, CreateView):
+class StudentCreateView(TeacherRequiredMixin, CreateView):
     """Create new student"""
     model = Student
     template_name = 'students/student_form.html'
@@ -57,7 +58,7 @@ class StudentCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('students:student_list')
 
 
-class StudentUpdateView(LoginRequiredMixin, UpdateView):
+class StudentUpdateView(TeacherRequiredMixin, UpdateView):
     """Update student information"""
     model = Student
     template_name = 'students/student_form.html'
@@ -65,14 +66,14 @@ class StudentUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('students:student_list')
 
 
-class ClassListView(LoginRequiredMixin, ListView):
+class ClassListView(TeacherRequiredMixin, ListView):
     """List all classes"""
     model = Class
     template_name = 'students/class_list.html'
     context_object_name = 'classes'
 
 
-class ClassCreateView(LoginRequiredMixin, CreateView):
+class ClassCreateView(TeacherRequiredMixin, CreateView):
     """Create new class"""
     model = Class
     template_name = 'students/class_form.html'

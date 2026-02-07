@@ -9,6 +9,7 @@ from .models import Result, GradingRule, ProbabilisticGradingConfig
 from exams.models import Exam, AnswerSheet
 from students.models import Student
 from .grading_engine import grade_answer_sheet
+from accounts.permissions import AdminRequiredMixin, TeacherRequiredMixin
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -17,22 +18,44 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
         
-        # Statistics
-        context['total_students'] = Student.objects.count()
-        context['total_exams'] = Exam.objects.count()
-        context['total_results'] = Result.objects.count()
-        
-        # Recent results
-        context['recent_results'] = Result.objects.select_related(
-            'student', 'exam', 'subject'
-        ).order_by('-generated_at')[:10]
-        
-        # Grade distribution
-        grade_stats = Result.objects.values('grade').annotate(
-            count=Count('id')
-        ).order_by('-count')
-        context['grade_stats'] = grade_stats
+        if user.role in ['ADMIN', 'TEACHER']:
+            # Statistics for staff
+            context['total_students'] = Student.objects.count()
+            context['total_exams'] = Exam.objects.count()
+            context['total_results'] = Result.objects.count()
+            
+            # Recent results for staff
+            context['recent_results'] = Result.objects.select_related(
+                'student', 'exam', 'subject'
+            ).order_by('-generated_at')[:10]
+            
+            # Grade distribution for staff
+            grade_stats = Result.objects.values('grade').annotate(
+                count=Count('id')
+            ).order_by('-count')
+            context['grade_stats'] = grade_stats
+        else:
+            # Statistics for student
+            # Try to find the student record linked to this user (if any)
+            # For now, we'll try matching by email
+            student = Student.objects.filter(email=user.email).first()
+            if student:
+                student_results = Result.objects.filter(student=student)
+                context['total_exams'] = student_results.values('exam').distinct().count()
+                context['total_results'] = student_results.count()
+                context['recent_results'] = student_results.select_related(
+                    'exam', 'subject'
+                ).order_by('-generated_at')[:10]
+                
+                grade_stats = student_results.values('grade').annotate(
+                    count=Count('id')
+                ).order_by('-count')
+                context['grade_stats'] = grade_stats
+                context['student_record'] = student
+            else:
+                context['no_student_linked'] = True
         
         return context
 
@@ -60,7 +83,7 @@ class AutoGradeView(LoginRequiredMixin, TemplateView):
         return render(request, self.template_name, context)
 
 
-class BulkMarkEntryView(LoginRequiredMixin, TemplateView):
+class BulkMarkEntryView(TeacherRequiredMixin, TemplateView):
     """Bulk mark entry for an exam"""
     template_name = 'grading/bulk_entry.html'
     
@@ -105,7 +128,7 @@ class BulkMarkEntryView(LoginRequiredMixin, TemplateView):
         return redirect('exams:exam_list')
 
 
-class GradingConfigView(LoginRequiredMixin, ListView):
+class GradingConfigView(AdminRequiredMixin, ListView):
     """View and manage grading configurations"""
     model = ProbabilisticGradingConfig
     template_name = 'grading/config.html'

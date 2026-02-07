@@ -54,10 +54,16 @@
                 {% if user.is_authenticated %}
                 <div class="hidden md:flex space-x-6 items-center">
                     <a href="{% url 'grading:dashboard' %}" class="hover:text-gray-200 transition">Dashboard</a>
+
+                    {% if user.role == 'ADMIN' or user.role == 'TEACHER' %}
                     <a href="{% url 'students:student_list' %}" class="hover:text-gray-200 transition">Students</a>
                     <a href="{% url 'exams:exam_list' %}" class="hover:text-gray-200 transition">Exams</a>
                     <a href="{% url 'reports:exam_result_list' %}" class="hover:text-gray-200 transition">Results</a>
+                    {% endif %}
+
+                    {% if user.role == 'ADMIN' %}
                     <a href="{% url 'grading:grading_config' %}" class="hover:text-gray-200 transition">Config</a>
+                    {% endif %}
                 </div>
 
                 <!-- User Menu -->

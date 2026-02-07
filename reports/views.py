@@ -4,9 +4,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from students.models import Student, Class
 from exams.models import Exam
 from grading.models import Result
+from accounts.permissions import TeacherRequiredMixin, StudentRequiredMixin
 
 
-class StudentResultView(LoginRequiredMixin, TemplateView):
+class StudentResultView(StudentRequiredMixin, TemplateView):
     """Individual student result view"""
     template_name = 'reports/student_result.html'
     
@@ -43,7 +44,7 @@ class StudentResultView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ClassResultView(LoginRequiredMixin, TemplateView):
+class ClassResultView(TeacherRequiredMixin, TemplateView):
     """Class-wise result view"""
     template_name = 'reports/class_result.html'
     
@@ -84,7 +85,7 @@ class ClassResultView(LoginRequiredMixin, TemplateView):
         
         return context
 
-class ExamResultListView(LoginRequiredMixin, ListView):
+class ExamResultListView(TeacherRequiredMixin, ListView):
     """View to list all exams for result viewing"""
     model = Exam
     template_name = 'reports/exam_result_list.html'

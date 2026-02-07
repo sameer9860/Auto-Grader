@@ -4,6 +4,7 @@ from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Exam, Question, AnswerSheet
 from students.models import Subject
+from accounts.permissions import TeacherRequiredMixin, StudentRequiredMixin
 
 
 class ExamListView(LoginRequiredMixin, ListView):
@@ -27,7 +28,7 @@ class ExamDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class ExamCreateView(LoginRequiredMixin, CreateView):
+class ExamCreateView(TeacherRequiredMixin, CreateView):
     """Create new exam"""
     model = Exam
     template_name = 'exams/exam_form.html'
@@ -39,7 +40,7 @@ class ExamCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class QuestionCreateView(LoginRequiredMixin, CreateView):
+class QuestionCreateView(TeacherRequiredMixin, CreateView):
     """Add question to exam"""
     model = Question
     template_name = 'exams/question_form.html'
@@ -62,7 +63,7 @@ class QuestionCreateView(LoginRequiredMixin, CreateView):
         return reverse('exams:exam_detail', kwargs={'pk': self.exam.pk})
 
 
-class AnswerSheetCreateView(LoginRequiredMixin, CreateView):
+class AnswerSheetCreateView(StudentRequiredMixin, CreateView):
     """Simulate taking an exam / submitting answers"""
     model = AnswerSheet
     template_name = 'exams/take_exam.html'
